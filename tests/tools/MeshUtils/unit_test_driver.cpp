@@ -14,12 +14,14 @@
 #include "LongEdgeRemovalTest.h"
 #include "MeshCheckerTest.h"
 #include "MeshSeparatorTest.h"
+#include "ManifoldCheckTest.h"
 #include "ObtuseTriangleRemovalTest.h"
 #include "PointLocatorTest.h"
 #include "ShortEdgeRemovalTest.h"
 #include "SimpleSubdivisionTest.h"
 #include "SubMeshTest.h"
 #include "TriangleMetricTest.h"
+#include "VoxelUtilsTest.h"
 
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);

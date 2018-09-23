@@ -8,6 +8,7 @@
 #include <MeshUtils/AttributeUtils.h>
 #include <MeshUtils/ObtuseTriangleRemoval.h>
 #include <MeshUtils/ShortEdgeRemoval.h>
+#include <MeshUtils/ManifoldCheck.h>
 #include <MeshUtils/MeshUtils.h>
 #include <MeshUtils/MeshSeparator.h>
 #include <MeshUtils/MeshChecker.h>
@@ -20,6 +21,7 @@
 #include <MeshUtils/FinFaceRemoval.h>
 #include <MeshUtils/DegeneratedTriangleRemoval.h>
 #include <MeshUtils/FaceUtils.h>
+#include <MeshUtils/VoxelUtils.h>
 
 namespace py = pybind11;
 using namespace PyMesh;
@@ -43,6 +45,9 @@ void init_MeshUtils(py::module& m) {
     m.def("is_colinear_2D", &FaceUtils::is_colinear_2D);
     m.def("is_colinear_3D", &FaceUtils::is_colinear_3D);
     m.def("get_degenerated_faces", &FaceUtils::get_degenerated_faces);
+    m.def("get_tet_orientations", &VoxelUtils::get_tet_orientations);
+    m.def("is_vertex_manifold", &ManifoldCheck::is_vertex_manifold);
+    m.def("is_edge_manifold", &ManifoldCheck::is_edge_manifold);
 
     py::class_<ObtuseTriangleRemoval>(m, "ObtuseTriangleRemoval")
         .def(py::init<MatrixFr&, MatrixIr&>())

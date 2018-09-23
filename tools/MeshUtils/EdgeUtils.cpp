@@ -72,8 +72,6 @@ namespace EdgeUtilsHelper {
                 if (next.find(item.first) == next.end()) continue;
                 if (item.second == target_valance) {
                     chains.push_back(trace(next, item.first));
-                    const auto& chain = chains.back();
-                    const size_t chain_length = chain.size();
                 }
             }
         }
@@ -103,14 +101,14 @@ std::vector<VectorI> EdgeUtils::chain_edges(const MatrixIr& edges) {
     return chains;
 }
 
-TripletMap<size_t> EdgeUtils::compute_edge_face_adjacency(const MatrixIr& faces) {
-    TripletMap<size_t> adjacency;
+DupletMap<size_t> EdgeUtils::compute_edge_face_adjacency(const MatrixIr& faces) {
+    DupletMap<size_t> adjacency;
     const size_t num_faces = faces.rows();
     const size_t vertex_per_face = faces.cols();
     for (size_t i=0; i<num_faces; i++) {
         const auto& f = faces.row(i);
         for (size_t j=0; j<vertex_per_face; j++) {
-            adjacency.insert(Triplet(f[j], f[(j+1)%vertex_per_face]), i);
+            adjacency.insert({f[j], f[(j+1)%vertex_per_face]}, i);
         }
     }
     return adjacency;

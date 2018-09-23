@@ -1,21 +1,3 @@
-# General lib locations
-LINK_DIRECTORIES(/opt/local/lib)
-
-# Inlclude CGAL
-IF (CGAL_FOUND)
-    INCLUDE(${CGAL_USE_FILE})
-ELSE (CGAL_FOUND)
-    MESSAGE(FATAL_ERROR "CGAL is required for Wires module")
-ENDIF (CGAL_FOUND)
-
-# tetgen
-IF (TETGEN_FOUND)
-    INCLUDE_DIRECTORIES(${TETGEN_INCLUDE_DIRS})
-    ADD_DEFINITIONS(-DTETLIBRARY)
-ENDIF (TETGEN_FOUND)
-
-INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/tools)
-
 FILE(GLOB SRC_FILES *.cpp)
 FILE(GLOB INC_FILES *.h)
 FILE(GLOB DEP_FILES *.i)
@@ -28,9 +10,20 @@ ADD_SUBDIRECTORY(Inflator)
 ADD_SUBDIRECTORY(Interfaces)
 ADD_SUBDIRECTORY(Parameters)
 
-ADD_LIBRARY(lib_wires SHARED ${SRC_FILES} ${INC_FILES})
-TARGET_LINK_LIBRARIES(lib_wires Mesh lib_MeshUtils lib_convex_hull
-    lib_triangle_wrapper lib_boolean lib_tetgen_wrapper)
-SET_TARGET_PROPERTIES(lib_wires PROPERTIES OUTPUT_NAME "wires")
+ADD_LIBRARY(lib_Wires SHARED ${SRC_FILES} ${INC_FILES})
+TARGET_LINK_LIBRARIES(lib_Wires
+    PUBLIC
+        Mesh
+        PyMesh::Tools
+    PRIVATE
+        PyMesh::Tools::MeshUtils
+        PyMesh::Tools::ConvexHull
+        PyMesh::Tools::Triangle
+        PyMesh::Tools::Boolean
+        PyMesh::Tools::TetGen
+        PyMesh::Tools::BVH
+        Boost::boost
+)
+SET_TARGET_PROPERTIES(lib_Wires PROPERTIES OUTPUT_NAME "PyMesh-Wires")
 
-ADD_CUSTOM_TARGET(wires DEPENDS lib_wires)
+ADD_LIBRARY(PyMesh::Tools::Wires ALIAS lib_Wires)

@@ -5,8 +5,8 @@
 #include <list>
 
 #include <Core/Exception.h>
-#include <Misc/Triplet.h>
-#include <Misc/TripletMap.h>
+#include <Misc/Multiplet.h>
+#include <Misc/MultipletMap.h>
 
 using namespace PyMesh;
 
@@ -37,8 +37,9 @@ namespace FinFaceRemovalHelper {
     /**
      * Return a face that has the correct orientation.
      */
+    template<typename AdjacencyVector>
     int compute_majority_orientation(
-            const MatrixIr& faces, const std::vector<size_t>& face_indices,
+            const MatrixIr& faces, const AdjacencyVector& face_indices,
             size_t& correctly_orientated_face_idx) {
         size_t positive_fid = std::numeric_limits<size_t>::max();
         size_t negative_fid = std::numeric_limits<size_t>::max();
@@ -65,7 +66,7 @@ namespace FinFaceRemovalHelper {
 using namespace FinFaceRemovalHelper;
 
 FinFaceRemoval::FinFaceRemoval(const MatrixFr& vertices, const MatrixIr& faces)
-    : m_vertices(vertices), m_faces(faces), m_fins_only(false) {}
+    : m_fins_only(false), m_vertices(vertices), m_faces(faces) {}
 
 size_t FinFaceRemoval::run() {
     const size_t num_vertex_per_face = m_faces.cols();

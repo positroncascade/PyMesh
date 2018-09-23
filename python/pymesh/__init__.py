@@ -17,10 +17,15 @@ logging.getLogger(__name__).addHandler(NullHandler())
 
 from .Mesh import Mesh
 from .meshio import load_mesh, form_mesh, save_mesh, save_mesh_raw
+from .Assembler import Assembler
 from .boolean import boolean
+from .compression import compress, decompress
 from .convex_hull import convex_hull
 from .CSGTree import CSGTree
-#from .material import Material
+from .exact_arithmetic import Gmpz, Gmpq
+from .HarmonicSolver import HarmonicSolver
+from .HashGrid import HashGrid
+from .material import Material
 from .selfintersection import resolve_self_intersection
 from .selfintersection import detect_self_intersection
 from .outerhull import compute_outer_hull
@@ -35,55 +40,56 @@ from .tetrahedralize import tetrahedralize
 from .matrixio import load_matrix, save_matrix
 from .minkowski_sum import minkowski_sum
 from .cell_partition import partition_into_cells
-from .aabb_tree import AABBTree, distance_to_mesh, do_intersect
+from .aabb_tree import AABBTree, BVH, distance_to_mesh, do_intersect
+from .triangle import triangle
+from .tetgen import tetgen
 from .triangulate import triangulate_beta
+from .wires import *
+from .SparseSolver import SparseSolver
 
 __all__ = [
         "Mesh",
+        "Assembler",
         "load_mesh",
         "form_mesh",
         "save_mesh",
         "save_mesh_raw",
         "boolean",
-        #"Material",
         "CSGTree",
+        "Gmpq",
+        "Gmpz",
+        "load_matrix",
+        "Material",
+        "save_matrix",
         "resolve_self_intersection",
         "detect_self_intersection",
         "compute_outer_hull",
+        "compute_winding_number",
+        "slice_mesh",
         "submesh",
         "timethis",
-        "oriented_3D",
-        "oriented_2D",
+        "orient_3D",
+        "orient_2D",
         "in_circle",
         "in_sphere",
         "slice_mesh",
-        #"VoxelGrid"
+        "triangle",
+        "triangulate_beta",
+        "tetgen",
+        "tetrahedralize",
+        "minkowski_sum",
+        "partition_into_cells",
+        "AABBTree",
+        "distance_to_mesh",
+        "do_intersect",
+        "VoxelGrid",
+        "HarmonicSolver",
+        "SparseSolver",
+        "HashGrid",
+        "compress",
+        "decompress"
         ];
 __all__ += meshutils.__all__;
 __all__ += misc.__all__;
+__all__.append("wires");
 
-#try:
-#    import PyTriangle, PyTriangulation
-#except ImportError:
-#    pass;
-#else:
-#    from .triangulate import triangulate, retriangulate, retriangulate_raw
-#    from .triangulate import triangulate_beta
-#    __all__ += ["triangulate", "retriangulate", "retriangulate_raw",
-#            "triangulate_beta"];
-#
-#try:
-#    import PyWires
-#except ImportError:
-#    pass;
-#else:
-#    from . import wires
-#    __all__.append("wires");
-#
-#try:
-#    from .Solver import SparseSolver
-#    __all__.append("SparseSolver");
-#except ImportError:
-#    pass;
-#
-#

@@ -1,20 +1,16 @@
-# General lib locations
-LINK_DIRECTORIES(/opt/local/lib)
-
-# CGAL
-IF(CGAL_FOUND)
-    #ADD_DEFINITIONS(-DCGAL_KERNEL_NO_ASSERTIONS)
-    INCLUDE(${CGAL_USE_FILE})
-ENDIF(CGAL_FOUND)
-
-# Source files
+# Enumerate source files
 FILE(GLOB SRC_FILES *.cpp)
 FILE(GLOB INC_FILES *.h)
 
-# Include this directory
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
+ADD_LIBRARY(lib_CGAL SHARED ${SRC_FILES} ${INC_FILES})
+SET_TARGET_PROPERTIES(lib_CGAL PROPERTIES OUTPUT_NAME "PyMesh-CGAL")
+TARGET_LINK_LIBRARIES(lib_CGAL
+    PUBLIC
+        Mesh
+        PyMesh::Tools
+        PyMesh::CGAL
+        PyMesh::GMP
+        PyMesh::MPFR
+)
 
-ADD_LIBRARY(cgal_wrapper SHARED ${SRC_FILES} ${INC_FILES})
-TARGET_LINK_LIBRARIES(cgal_wrapper Mesh ${CGAL_LIBRARIES})
-
-ADD_CUSTOM_TARGET(cgal DEPENDS cgal_wrapper)
+ADD_LIBRARY(PyMesh::Tools::CGAL ALIAS lib_CGAL)

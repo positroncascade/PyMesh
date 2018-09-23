@@ -25,6 +25,15 @@ void init_CGAL(py::module&);
 void init_AABB(py::module&);
 void init_Wires(py::module&);
 void init_VoxelGrid(py::module&);
+void init_TriangleWrapper(py::module&);
+void init_FEM(py::module&);
+void init_TetgenWrapper(py::module&);
+void init_IGL(py::module&);
+void init_SparseSolver(py::module&);
+void init_HashGrid(py::module&);
+void init_BVH(py::module&);
+void init_Geogram(py::module&);
+void init_Compression(py::module&);
 
 PYBIND11_MODULE(PyMesh, m) {
     m.doc() = "Geometry Processing for Python.";
@@ -49,4 +58,13 @@ PYBIND11_MODULE(PyMesh, m) {
     init_AABB(m);
     init_Wires(m);
     init_VoxelGrid(m);
+    init_TriangleWrapper(m);
+    init_FEM(m);
+    init_TetgenWrapper(m);
+    init_IGL(m);
+    init_SparseSolver(m);
+    init_HashGrid(m);
+    init_BVH(m);
+    init_Geogram(m);
+    init_Compression(m);
 }

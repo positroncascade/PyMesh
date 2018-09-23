@@ -1,5 +1,6 @@
 /* This file is part of PyMesh. Copyright (c) 2015 by Qingnan Zhou */
 #pragma once
+#ifdef WITH_CARVE
 
 #include <algorithm>
 #include <string>
@@ -14,7 +15,6 @@ class CarveEngineTest : public BooleanEngineTest {
     protected:
         BooleanPtr get_disjoint_setting(MeshPtr mesh) {
             BooleanPtr carve_engine = BooleanEngine::create("carve");
-            const size_t num_vertices = mesh->get_num_vertices();
 
             MatrixFr vertices_1 = extract_vertices(mesh);
             MatrixIr faces_1    = extract_faces(mesh);
@@ -33,7 +33,6 @@ class CarveEngineTest : public BooleanEngineTest {
 
         BooleanPtr get_overlap_setting(MeshPtr mesh) {
             BooleanPtr carve_engine = BooleanEngine::create("carve");
-            const size_t num_vertices = mesh->get_num_vertices();
 
             MatrixFr vertices_1 = extract_vertices(mesh);
             MatrixIr faces_1    = extract_faces(mesh);
@@ -202,9 +201,6 @@ TEST_F(CarveEngineTest, overlap_union) {
     const MatrixFr& vertices = carve_engine->get_vertices();
     const MatrixIr& faces = carve_engine->get_faces();
 
-    const size_t num_vertices = mesh->get_num_vertices();
-    const size_t num_faces = mesh->get_num_faces();
-
     VectorF origin = VectorF::Zero(3);
     VectorF corner = VectorF::Ones(3);
     assert_interior(vertices, faces, origin);
@@ -220,9 +216,6 @@ TEST_F(CarveEngineTest, overlap_intersection) {
 
     const MatrixFr& vertices = carve_engine->get_vertices();
     const MatrixIr& faces = carve_engine->get_faces();
-
-    const size_t num_vertices = mesh->get_num_vertices();
-    const size_t num_faces = mesh->get_num_faces();
 
     VectorF origin = VectorF::Zero(3);
     VectorF corner = VectorF::Ones(3);
@@ -287,3 +280,5 @@ TEST_F(CarveEngineTest, open_surface) {
     // carve does not handle intersecting closed surface with open surface.
     //EXPECT_EQ(2, faces.rows());
 }
+
+#endif

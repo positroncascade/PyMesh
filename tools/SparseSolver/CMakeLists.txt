@@ -1,19 +1,19 @@
-# Include this directory
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
-
-# Numerics package.
-INCLUDE_DIRECTORIES(${UMFPACK_INCLUDES})
-INCLUDE_DIRECTORIES(${CHOLMOD_INCLUDES})
-INCLUDE_DIRECTORIES(${METIS_INCLUDE_DIRS})
-
 # Enumerate source files
 FILE(GLOB_RECURSE SRC_FILES *.cpp)
 FILE(GLOB_RECURSE INC_FILES *.h *.hh)
 
 ADD_LIBRARY(lib_SparseSolver SHARED ${SRC_FILES} ${INC_FILES})
-SET_TARGET_PROPERTIES(lib_SparseSolver PROPERTIES OUTPUT_NAME "SparseSolver")
-TARGET_LINK_LIBRARIES(lib_SparseSolver Mesh
-    ${UMFPACK_LIBRARIES} ${CHOLMOD_LIBRARIES} ${METIS_LIBRARIES}
-    ${LAPACK_LIBRARIES})
+SET_TARGET_PROPERTIES(lib_SparseSolver PROPERTIES OUTPUT_NAME
+    "PyMesh-SparseSolver")
+TARGET_LINK_LIBRARIES(lib_SparseSolver
+    PUBLIC
+        Mesh
+        PyMesh::Tools
+    PRIVATE
+        PyMesh::Umfpack
+        PyMesh::Cholmod
+        PyMesh::Metis
+        PyMesh::MKL
+)
 
-ADD_CUSTOM_TARGET(SparseSolver DEPENDS lib_SparseSolver)
+ADD_LIBRARY(PyMesh::Tools::SparseSolver ALIAS lib_SparseSolver)

@@ -7,16 +7,16 @@
 #ifdef WITH_CLIPPER
 #include "Clipper/ClipperEngine.h"
 #endif
-#ifdef WITH_IGL
+#ifdef WITH_IGL_AND_CGAL
 #include "IGL/IGLEngine.h"
-#endif 
+#endif
 #ifdef WITH_CGAL
 #include "CGAL/CGALBooleanEngine.h"
 #include "CGAL/CGALCorefinementEngine.h"
-#endif 
+#endif
 #ifdef WITH_CARVE
 #include "Carve/CarveEngine.h"
-#endif 
+#endif
 #ifdef WITH_BSP
 #include "BSP/BSPEngine.h"
 #endif
@@ -32,13 +32,28 @@
 using namespace PyMesh;
 
 BooleanEngine::Ptr BooleanEngine::create(const std::string& engine_name) {
+    if (engine_name == "auto") {
+#if WITH_IGL_AND_CGAL
+        return BooleanEngine::create("igl");
+#elif WITH_CORK
+        return BooleanEngine::create("cork");
+#elif WITH_CLIPPER
+        return BooleanEngine::create("clipper");
+#elif WITH_CGAL
+        return BooleanEngine::create("cgal");
+#elif WITH_CARVE
+        return BooleanEngine::create("carve");
+#elif WITH_BSP
+#endif
+    }
+
 #ifdef WITH_CORK
     if (engine_name == "cork") { return Ptr(new CorkEngine()); }
 #endif
 #ifdef WITH_CLIPPER
     if (engine_name == "clipper") { return Ptr(new ClipperEngine()); }
 #endif
-#ifdef WITH_IGL
+#ifdef WITH_IGL_AND_CGAL
     if (engine_name == "igl") { return Ptr(new IGLEngine()); }
 #endif
 #ifdef WITH_CGAL
@@ -68,6 +83,7 @@ void BooleanEngine::clean_up() {
 void BooleanEngine::remove_duplicated_vertices() {
     DuplicatedVertexRemoval remover(m_vertices, m_faces);
     size_t num_removed = remover.run(1e-6);
+    assert(num_removed <= m_vertices.rows());
     m_vertices = remover.get_vertices();
     m_faces = remover.get_faces();
 }
@@ -75,6 +91,7 @@ void BooleanEngine::remove_duplicated_vertices() {
 void BooleanEngine::remove_short_edges() {
     ShortEdgeRemoval remover(m_vertices, m_faces);
     size_t num_removed = remover.run(1e-6);
+    assert(num_removed <= m_faces.rows() * m_faces.cols());
     m_vertices = remover.get_vertices();
     m_faces = remover.get_faces();
 }
@@ -82,6 +99,7 @@ void BooleanEngine::remove_short_edges() {
 void BooleanEngine::remove_isolated_vertices() {
     IsolatedVertexRemoval remover(m_vertices, m_faces);
     size_t num_removed = remover.run();
+    assert(num_removed <= m_vertices.rows());
     m_vertices = remover.get_vertices();
     m_faces = remover.get_faces();
 }

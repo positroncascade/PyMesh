@@ -1,40 +1,98 @@
 Installation
 ============
 
-Download the Source:
---------------------
+Docker
+------
 
-The source code can be checked out from GitHub::
+The easiest way of using PyMesh is through
+`docker <https://www.docker.com/>`_, where one can simply ``pull`` a
+`prebuild image of PyMesh <https://hub.docker.com/r/pymesh/pymesh/>`_ from
+dockerhub::
 
-    git clone --recursive git@github.com:qnzhou/PyMesh.git
+    $ docker run -it pymesh/pymesh
+    Python 3.6.4 (default, Dec 21 2017, 01:35:12)
+    [GCC 4.9.2] on linux
+    Type "help", "copyright", "credits" or "license" for more information.
+    >>> import pymesh
+    >>>
 
-The environment variable ``PYMESH_PATH`` is used by the unit tests to locate the
-testing data, so be sure to set it up::
+Download the Source
+-------------------
 
-    export PYMESH_PATH=/path/to/PyMesh/
+The source code can be checked out from
+`GitHub <https://github.com/PyMesh/PyMesh>`_::
 
-Dependencies:
--------------
+    git clone https://github.com/PyMesh/PyMesh.git
+    cd PyMesh
+    git submodule update --init
+    export PYMESH_PATH=`pwd`
+
+The rest of the document assumes PyMesh is located at ``$PYMESH_PATH``.
+
+Dependencies
+------------
 
 PyMesh is based on the design philosophy that one should not reinvent the wheel.
 It depends a number of state-of-the-art open source libraries:
 
+System dependencies
+~~~~~~~~~~~~~~~~~~~
+
 * Python_: v2.7 or higher
 * NumPy_: v1.8 or higher
 * SciPy_: v0.13 or higher
-* SWIG_: v3.0.5 or higher
 * Eigen_: v3.2 or higher
+* TBB_: 2018 Update 1 or later
+* GMP_: v6.1 or higher
+* MPFR_: v4.0 or higher
+* Boost_: 1.6 or higher (thread, system)
 
 .. _Python: https://www.python.org
 .. _NumPy: https://www.numpy.org
 .. _SciPy: https://www.scipy.org
-.. _SWIG: http://www.swig.org
 .. _Eigen: http://eigen.tuxfamily.org
+.. _TBB: https://www.threadingbuildingblocks.org/
+.. _GMP: https://gmplib.org/
+.. _MPFR: https://www.mpfr.org/
+.. _Boost: https://www.boost.org/
 
-The following libraries are not required, but highly recommended.  PyMesh
+On Linux, the system dependencies can be installed with `apt-get`::
+
+    apt-get install \
+        libeigen3-dev \
+        libgmp-dev \
+        libgmpxx4ldbl \
+        libmpfr-dev \
+        libboost-dev \
+        libboost-thread-dev \
+        libtbb-dev \
+        python3-dev
+
+On MacOS, the system dependencies can be installed with MacPorts_::
+
+    port install
+        python36 \
+        eigen3 \
+        gmp \
+        mpfr \
+        tbb \
+        boost
+
+.. _MacPorts: https://www.macports.org/
+
+Python dependencies such as NumPy and SciPy can be installed using `pip`::
+
+    pip install -r $PYMESH_PATH/python/requirements.txt
+
+Third party dependencies
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following third-party libraries are not required, but highly recommended in
+order to use the full power of Pymesh.  PyMesh
 provides a thin wrapper to these libraries, and without them certain
 functionalities would be disabled. Most of these packages can be easily
-installed using package management softwares for your OS.
+installed using package management softwares for your OS.  A copy of these
+libraries are also included in the ``third_party`` direcgtory.
 
 * SparseHash_: is used to speed up hash grid.
 * CGAL_: is needed for self-intersection, convex hull, outer hull and boolean
@@ -42,14 +100,14 @@ installed using package management softwares for your OS.
 * tetgen_: is needed by tetrahedronization and wire inflation.
 * libigl_: is needed by outer hull, boolean computations and wire inflation.
 * cork_: is used by boolean computation.
-* triangle_: is used by triangulation and 2D wire inflation (See
-  :doc:`triangle_compilation_note`).
+* triangle_: is used by triangulation and 2D wire inflation.
 * qhull_: is used for computing convex hull.
 * Clipper_: is used for 2D boolean operations.
 * Carve_: is used for 3D boolean operations.  Minor modification is added by me
   for linux/mac compilation.
 * GeoGram_: is used as a 2D triangle and 3D tetrahedron generation engine.
 * Quartet_: is used as a 3D tetrahedralization engine.
+* MMG3D_: is used as a 3D tetrahedralizaiton optimization engine.
 
 .. _SparseHash: https://code.google.com/p/sparsehash/
 .. _CGAL: https://www.cgal.org
@@ -62,9 +120,14 @@ installed using package management softwares for your OS.
 .. _Carve: https://github.com/qnzhou/carve
 .. _GeoGram: http://alice.loria.fr/software/geogram/doc/html/index.html
 .. _Quartet: https://github.com/crawforddoran/quartet
+.. _MMG3D: https://www.mmgtools.org/
 
-Environment Variables:
-----------------------
+All third party libraries are attached to the repo as submodules.  They are
+built as part of PyMesh automatically.  See `Building PyMesh`_ section for more
+instructions.
+
+Environment Variables
+---------------------
 
 If any dependent libraries are not installed in the default locations, e.g.
 ``/usr/local`` and ``opt/local``, one needs to set certain environment variables
@@ -85,10 +148,25 @@ variables:
 * ``GEOGRAM_PATH``: path to GeoGram.
 * ``QUARTET_PATH``: path to Quartet.
 
-Building PyMesh:
-----------------
+.. _Building PyMesh:
 
-To compile the optional third party libraries::
+Building PyMesh
+---------------
+
+Build with Setuptools
+~~~~~~~~~~~~~~~~~~~~~
+
+Setuptools builds both the main PyMesh module as well as all third party
+dependencies. To build PyMesh::
+
+    ./setup.py build
+
+
+Build with CMake
+~~~~~~~~~~~~~~~~
+
+If you are familar with C++ and CMake, there is an alternative way of building
+PyMesh.  First compile and install all of the third party dependencies::
 
     cd $PYMESH_PATH/third_party
     mkdir build
@@ -108,99 +186,35 @@ environment::
     cd build
     cmake ..
 
-To only build the C++ libraries without python bindings, change the last command
-to::
-
-    cmake -DWITHOUT_SWIG=ON ..
-
-PyMesh consists of several modules.  The main module defines the core data
-structures and is used by all other modules.  To build the main module and its
-unit tests::
+PyMesh consists of several modules.  To build all modules and their
+corresponding unit tests::
 
     make
-    make src_tests
+    make tests
 
-The other modules are different tools to achieve certain functionalities.
-Different tools may have different dependencies.  A module will be disabled if
-its dependencies are not met.  To build all tools and their unit tests::
+PyMesh libraries are all located in ``$PYMESH_PATH/python/pymesh/lib``
+directory.
 
-    make tools
-    make tools_tests
 
-Another way is to build each tool separately::
+Install PyMesh
+~~~~~~~~~~~~~~
 
-    # MeshUtils tools
-    make MeshUtils
-    make MeshUtils_tests
+To install PyMesh in your system::
 
-    # EigenUtils tools
-    make EigenUtils
-    make EigenUtils_tests
+    ./setup.py install  # May require root privilege
 
-    # Assembler tools
-    make assembler
-    make assembler_tests
+Alternatively, one can install PyMesh locally::
 
-    # CGAL tools
-    make cgal
-    make cgal_tools
+    ./setup.py install --user
 
-    # Boolean tools
-    make boolean
-    make boolean_tests
 
-    # Convex hull tools
-    make convex_hull
-    make convex_hull_tests
-
-    # Envolope tools
-    make envolope
-    make envolope_tests
-
-    # Outer hull tools
-    make outer_hull
-    make outer_hull_tests
-
-    # SelfIntersection tools
-    make self_intersection
-    make self_intersection_tests
-
-    # SparseSolver tools
-    make SparseSolver
-    make SparseSolver_tests
-
-    # Tetrahedronization tools
-    make tetrahedronization
-    make tetrahedronization_tests
-
-    # Wire inflation tools
-    make wires
-    make wires_tests
-
-    # TetGen tools
-    make tetgen
-    make tetgen_tests
-
-    # Triangle tools
-    make triangle
-    make triangle_tests
-
-Make sure all unit tests are passed before using the library.  Please report
-unit tests failures on github.
-
-Install PyMesh:
----------------
-
-The output of building PyMesh consists a set of C++ libraries and a python
-module. Installing the C++ library is currently not available.  However,
-installing the python package can be done::
-
-    ./setup.py build # This an alternative way of calling cmake/make
-    ./setup.py install
+Post-installation check
+~~~~~~~~~~~~~~~~~~~~~~~
 
 To check PyMesh is installed correctly, one can run the unit tests::
 
     python -c "import pymesh; pymesh.test()"
 
-Once again, make sure all unit tests are passed, and report any unit test
+Please make sure all unit tests are passed, and report any unit test
 failures.
+

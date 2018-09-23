@@ -100,6 +100,13 @@ def quantile_breakdown(data, name, info, title=None, with_total=True):
     if with_total:
         info["total_{}".format(name)] = total;
 
+def print_edge_info(mesh, info):
+    if (mesh.num_faces == 0): return;
+    mesh.add_attribute("edge_length");
+    edge_length = mesh.get_attribute("edge_length");
+    quantile_breakdown(edge_length, "edge_lengthlli", info,
+            title = "Edge Length", with_total=False);
+
 def print_face_info(mesh, info):
     if (mesh.num_faces == 0): return;
     mesh.add_attribute("face_area");
@@ -117,12 +124,13 @@ def print_quantile_info(mesh, info):
     quantile_breakdown(aspect_ratios, "aspect_ratio", info,
             title = "Face Aspect Ratio", with_total=False);
 
-    mesh.add_attribute("edge_dihedral_angle");
-    dihedral_angles = mesh.get_attribute("edge_dihedral_angle");
-    quantile_breakdown(dihedral_angles, "dihedral_angle", info,
-            title = "Edge Dihedral Angle", with_total=False);
+    if mesh.dim == 3:
+        mesh.add_attribute("edge_dihedral_angle");
+        dihedral_angles = mesh.get_attribute("edge_dihedral_angle");
+        quantile_breakdown(dihedral_angles, "dihedral_angle", info,
+                title = "Edge Dihedral Angle", with_total=False);
 
-    if (mesh.num_voxels > 0):
+    if (mesh.num_voxels > 0 and mesh.vertex_per_voxel == 4):
         mesh.add_attribute("voxel_dihedral_angle");
         voxel_dihedral_angle = mesh.get_attribute("voxel_dihedral_angle");
         voxel_dihedral_angle = voxel_dihedral_angle.reshape((-1, 6));
@@ -210,6 +218,15 @@ def print_extended_info(mesh, info):
             num_combinatorial_degenerated_faces;
     info["num_geometrical_degenerated_faces"] =\
             num_degenerated - num_combinatorial_degenerated_faces;
+
+    if mesh.num_voxels > 0 and mesh.vertex_per_voxel == 4:
+        tet_orientations = pymesh.get_tet_orientations(mesh);
+        num_degenerate_tets = np.sum(tet_orientations == 0);
+        num_inverted_tets = np.sum(tet_orientations < 0);
+        print_property("num degenerated tets:", num_degenerate_tets, 0);
+        print_property("num inverted tets:", num_inverted_tets, 0);
+        info["num_degenerated_tets"] = int(num_degenerate_tets);
+        info["num_inverted_tets"] = int(num_inverted_tets);
 
     is_closed = mesh.is_closed();
     is_edge_manifold = mesh.is_edge_manifold();
@@ -306,6 +323,7 @@ def main():
     print_header("{:=^55}".format(header));
     print_basic_info(mesh, info);
     print_bbox(mesh, info);
+    print_edge_info(mesh, info);
     print_face_info(mesh, info);
     print_voxel_info(mesh, info);
     if (args.extended):

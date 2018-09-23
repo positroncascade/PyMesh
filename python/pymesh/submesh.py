@@ -24,7 +24,7 @@ def extract_submesh_surface(mesh, face_indices, n_ring):
     faces = mesh.faces[selected_faces];
     ring_index = (ring_index[selected_faces] - n_ring - 1) * (-1);
 
-    vertices, faces, __ = remove_isolated_vertices_raw(vertices, faces);
+    vertices, faces, info = remove_isolated_vertices_raw(vertices, faces);
     out_mesh = form_mesh(vertices, faces);
     out_mesh.add_attribute("ori_face_index");
     out_mesh.set_attribute("ori_face_index", selected_face_indices);
@@ -96,13 +96,13 @@ def submesh(mesh, element_indices, num_rings):
             extract.
 
     Returns:
-       A mesh only containing the selected elements and their local neighborhood
-       up to `num_rings` rings.  The output mesh contains the following
-       attributes:
+       A :class:`Mesh` object only containing the selected elements and their
+       local neighborhood up to `num_rings` rings.  The output mesh contains the
+       following attributes:
 
        * ori_face_index/ori_voxel_index: The original index of each element.
        * ring: Index indicating which ring does each element belongs.  The
-           selected elements belongs to the 0-ring.
+         selected elements belongs to the 0-ring.
     """
 
     if mesh.num_voxels == 0:

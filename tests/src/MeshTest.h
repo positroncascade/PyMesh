@@ -1,4 +1,4 @@
-/* This file is part of PyMesh. Copyright (c) 2015 by Qingnan Zhou */
+/* This file is part of PyMesh. Copyright (c) 2018 by Qingnan Zhou */
 #pragma once
 #include <string>
 #include <Mesh.h>
@@ -100,9 +100,9 @@ TEST_F(MeshTest, FistVertex) {
     ASSERT_DOUBLE_EQ(-1.0, cube_tri_first[1]);
     ASSERT_DOUBLE_EQ( 1.0, cube_tri_first[2]);
     const VectorF& cube_tet_first = m_cube_tet->get_vertex(0);
-    ASSERT_DOUBLE_EQ(-1.0, cube_tri_first[0]);
-    ASSERT_DOUBLE_EQ(-1.0, cube_tri_first[1]);
-    ASSERT_DOUBLE_EQ( 1.0, cube_tri_first[2]);
+    ASSERT_DOUBLE_EQ(-1.0, cube_tet_first[0]);
+    ASSERT_DOUBLE_EQ(-1.0, cube_tet_first[1]);
+    ASSERT_DOUBLE_EQ( 1.0, cube_tet_first[2]);
     const VectorF& square_tri_first = m_square_tri->get_vertex(0);
     ASSERT_DOUBLE_EQ( 1.0, square_tri_first[0]);
     ASSERT_DOUBLE_EQ( 1.0, square_tri_first[1]);
@@ -120,9 +120,9 @@ TEST_F(MeshTest, LastVertex) {
     ASSERT_DOUBLE_EQ( 1.0, cube_tri_last[2]);
     const VectorF& cube_tet_last = m_cube_tet->get_vertex(
             m_cube_tet->get_num_vertices() - 1);
-    ASSERT_DOUBLE_EQ( 1.0, cube_tri_last[0]);
-    ASSERT_DOUBLE_EQ( 1.0, cube_tri_last[1]);
-    ASSERT_DOUBLE_EQ( 1.0, cube_tri_last[2]);
+    ASSERT_DOUBLE_EQ( 1.0, cube_tet_last[0]);
+    ASSERT_DOUBLE_EQ( 1.0, cube_tet_last[1]);
+    ASSERT_DOUBLE_EQ( 1.0, cube_tet_last[2]);
     const VectorF& square_tri_last = m_square_tri->get_vertex(
             m_square_tri->get_num_vertices() - 1);
     ASSERT_DOUBLE_EQ(-1.0, square_tri_last[0]);
@@ -249,8 +249,50 @@ TEST_F(MeshTest, HexAdj) {
     ASSERT_EQ(3, m_cube_hex->get_vertex_adjacent_vertices(5).size());
     ASSERT_EQ(3, m_cube_hex->get_vertex_adjacent_vertices(6).size());
     ASSERT_EQ(3, m_cube_hex->get_vertex_adjacent_vertices(7).size());
+    ASSERT_EQ(6, m_cube_hex->get_voxel_adjacent_faces(0).size());
 
     check_face_face_adjacency_is_symmetric(m_cube_hex);
     check_vertex_vertex_adjacency_is_symmetric(m_cube_hex);
+}
+
+TEST_F(MeshTest, ConnectivityWithIsolatedVertices) {
+    constexpr size_t N = 100;
+    MatrixFr vertices(N, 3);
+    vertices.setZero();
+    MatrixIr faces(4, 3);
+    faces << 0, 2, 1,
+             0, 3, 2,
+             1, 2, 3,
+             0, 1, 3;
+    MatrixIr voxels(1, 4);
+    voxels << 0, 1, 2, 3;
+    auto mesh = load_data(vertices, faces, voxels);
+    mesh->enable_connectivity();
+
+    ASSERT_EQ(3, mesh->get_vertex_adjacent_vertices(0).size());
+    ASSERT_EQ(3, mesh->get_vertex_adjacent_vertices(1).size());
+    ASSERT_EQ(3, mesh->get_vertex_adjacent_vertices(2).size());
+    ASSERT_EQ(3, mesh->get_vertex_adjacent_vertices(3).size());
+    ASSERT_EQ(3, mesh->get_vertex_adjacent_faces(0).size());
+    ASSERT_EQ(3, mesh->get_vertex_adjacent_faces(1).size());
+    ASSERT_EQ(3, mesh->get_vertex_adjacent_faces(2).size());
+    ASSERT_EQ(3, mesh->get_vertex_adjacent_faces(3).size());
+    ASSERT_EQ(1, mesh->get_vertex_adjacent_voxels(0).size());
+    ASSERT_EQ(1, mesh->get_vertex_adjacent_voxels(1).size());
+    ASSERT_EQ(1, mesh->get_vertex_adjacent_voxels(2).size());
+    ASSERT_EQ(1, mesh->get_vertex_adjacent_voxels(3).size());
+    for (size_t i=4; i<N; i++) {
+        ASSERT_EQ(0, mesh->get_vertex_adjacent_vertices(i).size());
+        ASSERT_EQ(0, mesh->get_vertex_adjacent_faces(i).size());
+        ASSERT_EQ(0, mesh->get_vertex_adjacent_voxels(i).size());
+    }
+    ASSERT_EQ(3, mesh->get_face_adjacent_faces(0).size());
+    ASSERT_EQ(3, mesh->get_face_adjacent_faces(1).size());
+    ASSERT_EQ(3, mesh->get_face_adjacent_faces(2).size());
+    ASSERT_EQ(3, mesh->get_face_adjacent_faces(3).size());
+    ASSERT_EQ(1, mesh->get_face_adjacent_voxels(0).size());
+    ASSERT_EQ(1, mesh->get_face_adjacent_voxels(1).size());
+    ASSERT_EQ(1, mesh->get_face_adjacent_voxels(2).size());
+    ASSERT_EQ(1, mesh->get_face_adjacent_voxels(3).size());
 }
 

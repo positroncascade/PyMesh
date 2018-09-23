@@ -1,11 +1,18 @@
-############################ REQUIRED PACKAGES #################################
+# MKL
+IF (NOT MKL_FOUND)
+    FIND_PACKAGE(MKL)
+ENDIF (NOT MKL_FOUND)
 
 # Include Eigen
-IF (NOT EIGNE_FOUND)
+IF (NOT EIGEN_FOUND)
     FIND_PACKAGE(Eigen REQUIRED)
-ENDIF (NOT EIGNE_FOUND)
+ENDIF (NOT EIGEN_FOUND)
 
-############################ OPTIONAL PACKAGES #################################
+# TBB
+IF (NOT TBB_FOUND)
+    SET(TBB_ROOT ${PROJECT_SOURCE_DIR}/python/pymesh/third_party/)
+    FIND_PACKAGE(TBB REQUIRED)
+ENDIF (NOT TBB_FOUND)
 
 # OpenCL
 IF (NOT OPENCL_FOUND)
@@ -19,39 +26,49 @@ ENDIF (NOT SPARSEHAHS_FOUND)
 
 # Boost
 IF (NOT Boost_FOUND)
+    SET(BOOST_ROOT ${PROJECT_SOURCE_DIR}/python/pymesh/third_party/)
     FIND_PACKAGE(Boost COMPONENTS system thread REQUIRED)
 ENDIF (NOT Boost_FOUND)
-
-# Python
-IF (NOT PYTHON_FOUND)
-    FIND_PACKAGE(Python REQUIRED)
-    #FIND_PACKAGE(PythonInterp REQUIRED)
-    #FIND_PACKAGE(PythonLibs REQUIRED)
-ENDIF (NOT PYTHON_FOUND)
-
-# CGAL
-IF (NOT CGAL_FOUND)
-    IF (EXISTS ${PROJECT_SOURCE_DIR}/python/pymesh/third_party/lib/CGAL/UseCGAL.cmake)
-        SET(CGAL_DIR ${PROJECT_SOURCE_DIR}/python/pymesh/third_party/lib/CGAL)
-    ELSEIF (EXISTS ${PROJECT_SOURCE_DIR}/python/pymesh/third_party/lib64/CGAL/UseCGAL.cmake)
-        SET(CGAL_DIR ${PROJECT_SOURCE_DIR}/python/pymesh/third_party/lib64/CGAL)
-    ELSE (EXISTS ${PROJECT_SOURCE_DIR}/python/pymesh/third_party/lib/CGAL/UseCGAL.cmake)
-        IF (DEFINED ENV{CGAL_PATH} AND NOT DEFINED ENV{CGAL_DIR})
-            SET(CGAL_DIR $ENV{CGAL_PATH})
-        ENDIF (DEFINED ENV{CGAL_PATH} AND NOT DEFINED ENV{CGAL_DIR})
-    ENDIF (EXISTS ${PROJECT_SOURCE_DIR}/python/pymesh/third_party/lib/CGAL/UseCGAL.cmake)
-    SET(CGAL_DONT_OVERRIDE_CMAKE_FLAGS TRUE CACHE BOOL
-        "Disable CGAL from overwriting my cmake flags")
-    FIND_PACKAGE(CGAL QUIET)
-    IF (CGAL_FOUND)
-	    INCLUDE(${CGAL_USE_FILE})
-    ENDIF (CGAL_FOUND)
-ENDIF (NOT CGAL_FOUND)
 
 # GMP
 IF (NOT GMP_FOUND)
     FIND_PACKAGE(GMP)
 ENDIF (NOT GMP_FOUND)
+
+# MPFR
+IF (NOT MPFR_FOUND)
+    FIND_PACKAGE(MPFR)
+ENDIF (NOT MPFR_FOUND)
+
+# CGAL
+IF (NOT CGAL_FOUND)
+    IF (EXISTS ${PROJECT_SOURCE_DIR}/python/pymesh/third_party/lib/cmake/CGAL/UseCGAL.cmake)
+        SET(CGAL_DIR ${PROJECT_SOURCE_DIR}/python/pymesh/third_party/lib/cmake/CGAL)
+    ELSEIF (EXISTS ${PROJECT_SOURCE_DIR}/python/pymesh/third_party/lib/CGAL/UseCGAL.cmake)
+        SET(CGAL_DIR ${PROJECT_SOURCE_DIR}/python/pymesh/third_party/lib/CGAL)
+    ELSEIF (EXISTS ${PROJECT_SOURCE_DIR}/python/pymesh/third_party/lib64/cmake/CGAL/UseCGAL.cmake)
+        SET(CGAL_DIR ${PROJECT_SOURCE_DIR}/python/pymesh/third_party/lib64/CGAL)
+    ELSEIF (EXISTS ${PROJECT_SOURCE_DIR}/python/pymesh/third_party/lib64/CGAL/UseCGAL.cmake)
+        SET(CGAL_DIR ${PROJECT_SOURCE_DIR}/python/pymesh/third_party/lib64/cmake/CGAL)
+    ELSE (EXISTS ${PROJECT_SOURCE_DIR}/python/pymesh/third_party/lib/cmake/CGAL/UseCGAL.cmake)
+        IF (DEFINED ENV{CGAL_PATH} AND NOT DEFINED ENV{CGAL_DIR})
+            SET(CGAL_DIR $ENV{CGAL_PATH})
+        ENDIF (DEFINED ENV{CGAL_PATH} AND NOT DEFINED ENV{CGAL_DIR})
+    ENDIF (EXISTS ${PROJECT_SOURCE_DIR}/python/pymesh/third_party/lib/cmake/CGAL/UseCGAL.cmake)
+    SET(CGAL_DONT_OVERRIDE_CMAKE_FLAGS TRUE CACHE BOOL
+        "Disable CGAL from overwriting my cmake flags")
+    FIND_PACKAGE(CGAL QUIET)
+ENDIF (NOT CGAL_FOUND)
+
+# MMG
+IF (NOT MMG_FOUND)
+    IF (DEFINED ENV{MMG_PATH})
+        SET(MMG_BUILD_DIR $ENV{MMG_PATH})
+    ELSE (DEFINED ENV{MMG_PATH})
+        SET(MMG_BUILD_DIR ${PROJECT_SOURCE_DIR}/python/pymesh/third_party/)
+    ENDIF (DEFINED ENV{MMG_PATH})
+    FIND_PACKAGE(Mmg)
+ENDIF (NOT MMG_FOUND)
 
 # Qhull
 IF (NOT QHULL_FOUND)
@@ -126,10 +143,21 @@ IF (NOT LAPACK_FOUND)
     FIND_PACKAGE(LAPACK)
 ENDIF (NOT LAPACK_FOUND)
 
-# GeoGram
+# Geogram
 IF (NOT GEOGRAM_FOUND)
-    FIND_PACKAGE(GeoGram)
+    SET(GEOGRAM_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/python/pymesh/third_party)
+    FIND_PACKAGE(Geogram)
 ENDIF (NOT GEOGRAM_FOUND)
+
+# Draco
+IF (NOT draco_FOUND)
+    FIND_PACKAGE(Draco)
+ENDIF (NOT draco_FOUND)
+
+# TetWild
+IF (NOT TETWILD_FOUND)
+    FIND_PACKAGE(TetWild)
+ENDIF (NOT TETWILD_FOUND)
 
 # openmp
 IF (NOT OPENMP_FOUND)
@@ -142,3 +170,8 @@ IF (NOT OPENMP_FOUND)
         MESSAGE(STATUS "OpenMP not found")
     ENDIF (OPENMP_FOUND)
 ENDIF (NOT OPENMP_FOUND)
+
+# Fast winding number
+IF (NOT FAST_WINDING_NUMBER_FOUND)
+    FIND_PACKAGE(FastWindingNumber)
+ENDIF (NOT FAST_WINDING_NUMBER_FOUND)

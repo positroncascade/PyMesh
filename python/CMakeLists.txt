@@ -1,19 +1,15 @@
-# Add python binding.
-INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/tools)
-INCLUDE_DIRECTORIES(${EIGEN_INCLUDE_DIRS})
-INCLUDE_DIRECTORIES(${EIGEN_INCLUDE_DIRS}/unsupported)
-
-INCLUDE_DIRECTORIES(${LIBIGL_INCLUDE_DIRS})
-INCLUDE(${CGAL_USE_FILE})
-LIST(APPEND DEPENDENT_LIBS ${CGAL_LIBRARIES})
-
 PYBIND11_ADD_MODULE(PyMesh module.cpp
     PyAABB.cpp
     PyBoolean.cpp
     PyCellPartition.cpp
     PyCGAL.cpp
+    PyCompression.cpp
     PyConvexHull.cpp
     PyDMAT.cpp
+    PyFEM.cpp
+    PyGeogram.cpp
+    PyHashGrid.cpp
+    PyIGL.cpp
     PyMeshUtils.cpp
     PyMesh.cpp
     PyMeshFactory.cpp
@@ -21,7 +17,10 @@ PYBIND11_ADD_MODULE(PyMesh module.cpp
     PyOuterHull.cpp
     PyPredicates.cpp
     PySelfIntersectionResolver.cpp
+    PySparseSolver.cpp
+    PyTetgen.cpp
     PyTetrahedralization.cpp
+    PyTriangle.cpp
     PyTriangulation.cpp
     PyMinkowskiSum.cpp
     PyVoxelGrid.cpp
@@ -29,15 +28,28 @@ PYBIND11_ADD_MODULE(PyMesh module.cpp
     PyWires.cpp)
 TARGET_LINK_LIBRARIES(PyMesh PRIVATE
     Mesh
-    MeshUtils
-    cgal_wrapper
-    lib_igl
-    lib_predicates
-    lib_convex_hull
-    lib_self_intersection
-    lib_boolean
-    lib_outer_hull
-    lib_tetrahedronization
-    lib_triangulation
-    lib_winding_number
-    lib_wires)
+    PyMesh::Tools::Assembler
+    PyMesh::Tools::MeshUtils
+    PyMesh::Tools::CGAL
+    PyMesh::Tools::Geogram
+    PyMesh::Tools::IGL
+    PyMesh::Tools::Predicates
+    PyMesh::Tools::Compression
+    PyMesh::Tools::ConvexHull
+    PyMesh::Tools::SelfIntersection
+    PyMesh::Tools::Boolean
+    PyMesh::Tools::BVH
+    PyMesh::Tools::OuterHull
+    PyMesh::Tools::SparseSolver
+    PyMesh::Tools::TetGen
+    PyMesh::Tools::Tetrahedralization
+    PyMesh::Tools::Triangle
+    PyMesh::Tools::Triangulation
+    PyMesh::Tools::WindingNumber
+    PyMesh::Tools::Wires)
+TARGET_INCLUDE_DIRECTORIES(PyMesh SYSTEM PRIVATE
+    ${PROJECT_SOURCE_DIR}/src
+    ${PROJECT_SOURCE_DIR}/tools
+    ${EIGEN_INCLUDE_DIRS}
+    ${EIGEN_INCLUDE_DIRS}/unsupported
+    ${LIBIGL_INCLUDE_DIRS})

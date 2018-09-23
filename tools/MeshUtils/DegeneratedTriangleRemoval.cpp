@@ -10,9 +10,7 @@
 #include <MeshUtils/FaceUtils.h>
 #include <MeshUtils/IsolatedVertexRemoval.h>
 #include <MeshUtils/ShortEdgeRemoval.h>
-extern "C" {
 #include <Predicates/predicates.h>
-}
 
 using namespace PyMesh;
 
@@ -58,7 +56,7 @@ void DegeneratedTriangleRemoval::init_ori_face_indices() {
 
 size_t DegeneratedTriangleRemoval::remove_zero_edges() {
     ShortEdgeRemoval remover(m_vertices, m_faces);
-    size_t num_removed = remover.run(0.0);
+    const size_t num_removed = remover.run(std::numeric_limits<Float>::epsilon());
     m_vertices = remover.get_vertices();
     m_faces = remover.get_faces();
 
@@ -83,7 +81,7 @@ size_t DegeneratedTriangleRemoval::remove_line_faces() {
     // loop through faces, check if a face is a colinear.
     // If so, flip the longest edge.
 
-    auto comp = [&](const Triplet& e1, const Triplet& e2) -> bool{
+    auto comp = [&](const Duplet& e1, const Duplet& e2) -> bool{
         // Return true if e1 is longer than e2.
         auto v1 = m_vertices.row(e1.get_ori_data()[0]);
         auto v2 = m_vertices.row(e1.get_ori_data()[1]);
@@ -93,17 +91,15 @@ size_t DegeneratedTriangleRemoval::remove_line_faces() {
     };
 
     const size_t num_faces = m_faces.rows();
-    std::set<Triplet, decltype(comp)> edges_to_remove(comp);
+    std::set<Duplet, decltype(comp)> edges_to_remove(comp);
     std::vector<size_t> longest_edges(num_faces, INVALID);
     for (size_t fi=0; fi<num_faces; fi++) {
         if (!is_degenerated(fi)) continue;
         const auto& face = m_faces.row(fi);
-        const size_t fi_opp_v = find_longest_edge(fi);
-        const size_t vi_opp = face[fi_opp_v];
-        const size_t vi_0 = face[(fi_opp_v+1)%3];
-        const size_t vi_1 = face[(fi_opp_v+2)%3];
-        Triplet edge(vi_0, vi_1);
-        edges_to_remove.insert(edge);
+        const auto fi_opp_v = find_longest_edge(fi);
+        const auto vi_0 = face[(fi_opp_v+1)%3];
+        const auto vi_1 = face[(fi_opp_v+2)%3];
+        edges_to_remove.insert(Duplet{vi_0, vi_1});
         longest_edges[fi] = fi_opp_v;
     }
 
@@ -189,9 +185,9 @@ void DegeneratedTriangleRemoval::init_edge_map() {
     assert(m_faces.cols() == 3);
     for (size_t i=0; i<num_faces; i++) {
         const auto& f = m_faces.row(i);
-        m_edge_map.insert(Triplet(f[0], f[1]), i);
-        m_edge_map.insert(Triplet(f[1], f[2]), i);
-        m_edge_map.insert(Triplet(f[2], f[0]), i);
+        m_edge_map.insert({f[0], f[1]}, i);
+        m_edge_map.insert({f[1], f[2]}, i);
+        m_edge_map.insert({f[2], f[0]}, i);
     }
 }
 
@@ -211,11 +207,11 @@ size_t DegeneratedTriangleRemoval::find_longest_edge(size_t fi) const {
     const auto& v1 = m_vertices.row(f[1]);
     const auto& v2 = m_vertices.row(f[2]);
     size_t i = 0;
-    if (!(v0[0] == v1[0] || v0[0] == v2[0] || v1[0] == v2[0])) {
+    if (v0[0] != v1[0] || v0[0] != v2[0] || v1[0] != v2[0]) {
         i = 0;
-    } else if (!(v0[1] == v1[1] || v0[1] == v2[1] || v1[1] == v2[1])) {
+    } else if (v0[1] != v1[1] || v0[1] != v2[1] || v1[1] != v2[1]) {
         i = 1;
-    } else if (!(v0[2] == v1[2] || v0[2] == v2[2] || v1[2] == v2[2])) {
+    } else if (v0[2] != v1[2] || v0[2] != v2[2] || v1[2] != v2[2]) {
         i = 2;
     } else {
         // The triangle degenerates to a point, which should be removed prior to
@@ -238,6 +234,9 @@ size_t DegeneratedTriangleRemoval::find_longest_edge(size_t fi) const {
     std::cerr << f[0] << ": " << v0 << std::endl;
     std::cerr << f[1] << ": " << v1 << std::endl;
     std::cerr << f[2] << ": " << v2 << std::endl;
+    std::cerr << "|v0 - v1| = " << (v0-v1).norm() << std::endl;
+    std::cerr << "|v1 - v2| = " << (v1-v2).norm() << std::endl;
+    std::cerr << "|v2 - v0| = " << (v2-v0).norm() << std::endl;
     throw RuntimeError("Triangle contains an zero edge, report this bug");
 }
 

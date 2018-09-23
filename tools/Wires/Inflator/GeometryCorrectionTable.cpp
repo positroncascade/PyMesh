@@ -40,8 +40,12 @@ GeometryCorrectionTable::GeometryCorrectionTable(const std::string& table_file) 
         }
 
         Float data[4];
-        size_t n = sscanf(line, "%lf, %lf, %lf, %lf",
+        auto n = sscanf(line, "%lf, %lf, %lf, %lf",
                 &data[0], &data[1], &data[2], &data[3]);
+        if (n != 4) {
+            assert(fin.eof());
+            break;
+        }
 
         Vector2F design_size(data[0], data[1]);
         Vector2F measured_size(data[2], data[3]);
@@ -147,9 +151,9 @@ void GeometryCorrectionTable::apply_correction_to_out_plane_edge(
         const VectorF& proj_v = proj_loop.row(i);
         Float height = proj_edge_dir.dot(proj_v);
         VectorF width_dir = (proj_v - proj_edge_dir * height).normalized();
-        assert(!isnan(width_dir[0]));
-        assert(!isnan(width_dir[1]));
-        assert(!isnan(width_dir[2]));
+        assert(!std::isnan(width_dir[0]));
+        assert(!std::isnan(width_dir[1]));
+        assert(!std::isnan(width_dir[2]));
 
         Float height_sign = (height < 0.0)? -1: 1;
         proj_loop.row(i) = proj_edge_dir * height_sign * half_height

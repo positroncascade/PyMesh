@@ -2,7 +2,7 @@
 
 #include "Triangulation.h"
 
-#ifdef WITH_IGL
+#ifdef WITH_IGL_AND_CGAL
 #include "IGL/LexicographicTriangulation.h"
 #include "IGL/DelaunayTriangulation.h"
 #endif
@@ -16,7 +16,7 @@
 #endif
 
 #ifdef WITH_GEOGRAM
-#include "GeoGram/GeoGramDelaunayTriangulation.h"
+#include "Geogram/GeogramDelaunayTriangulation.h"
 #endif
 
 #include <Core/Exception.h>
@@ -25,13 +25,13 @@
 using namespace PyMesh;
 
 Triangulation::Ptr Triangulation::create(const std::string& engine_name) {
-#ifdef WITH_IGL
+#ifdef WITH_IGL_AND_CGAL
     if (engine_name == "igl_lexicographic") {
         return Ptr(new LexicographicTriangulation());
     }
 #endif
 
-#ifdef WITH_IGL
+#ifdef WITH_IGL_AND_CGAL
     if (engine_name == "igl_delaunay") {
         return Ptr(new DelaunayTriangulation());
     }
@@ -51,7 +51,7 @@ Triangulation::Ptr Triangulation::create(const std::string& engine_name) {
 
 #ifdef WITH_GEOGRAM
     if (engine_name == "geogram_delaunay") {
-        return Ptr(new GeoGramDelaunayTriangulation());
+        return Ptr(new GeogramDelaunayTriangulation());
     }
 #endif
 

@@ -1,8 +1,7 @@
+/* This file is part of PyMesh. Copyright (c) 2017 by Qingnan Zhou */
 #include "FaceUtils.h"
 
-extern "C" {
 #include <Predicates/predicates.h>
-}
 
 using namespace PyMesh;
 

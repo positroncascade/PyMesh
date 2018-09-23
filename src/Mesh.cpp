@@ -1,8 +1,6 @@
 /* This file is part of PyMesh. Copyright (c) 2015 by Qingnan Zhou */
 #include "Mesh.h"
 
-#include <iostream>
-
 #include <Attributes/MeshAttributes.h>
 #include <Connectivity/MeshConnectivity.h>
 #include <Core/EigenTypedef.h>
@@ -11,9 +9,9 @@
 using namespace PyMesh;
 
 Mesh::Mesh() {
-    m_geometry     = GeometryPtr    (new MeshGeometry());
-    m_connectivity = ConnectivityPtr(new MeshConnectivity());
-    m_attributes   = AttributesPtr  (new MeshAttributes());
+    m_geometry     = std::make_shared<MeshGeometry>();
+    m_connectivity = std::make_shared<MeshConnectivity>();
+    m_attributes   = std::make_shared<MeshAttributes>();
 }
 
 size_t Mesh::get_dim() const {
@@ -146,6 +144,10 @@ bool Mesh::has_attribute(const std::string& attr_name) const {
 
 void Mesh::add_attribute(const std::string& attr_name) {
     m_attributes->add_attribute(attr_name, *this);
+}
+
+void Mesh::add_empty_attribute(const std::string& attr_name) {
+    m_attributes->add_empty_attribute(attr_name);
 }
 
 void Mesh::remove_attribute(const std::string& attr_name) {

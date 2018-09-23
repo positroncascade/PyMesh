@@ -1,5 +1,6 @@
 /* This file is part of PyMesh. Copyright (c) 2015 by Qingnan Zhou */
 #pragma once
+#ifdef WITH_CGAL
 
 #include <algorithm>
 #include <string>
@@ -14,7 +15,6 @@ class CGALBooleanEngineTest : public BooleanEngineTest {
     protected:
         BooleanPtr get_disjoint_setting(MeshPtr mesh) {
             BooleanPtr cgal_engine = BooleanEngine::create("cgal");
-            const size_t num_vertices = mesh->get_num_vertices();
 
             MatrixFr vertices_1 = extract_vertices(mesh);
             MatrixIr faces_1    = extract_faces(mesh);
@@ -33,7 +33,6 @@ class CGALBooleanEngineTest : public BooleanEngineTest {
 
         BooleanPtr get_overlap_setting(MeshPtr mesh) {
             BooleanPtr cgal_engine = BooleanEngine::create("cgal");
-            const size_t num_vertices = mesh->get_num_vertices();
 
             MatrixFr vertices_1 = extract_vertices(mesh);
             MatrixIr faces_1    = extract_faces(mesh);
@@ -202,9 +201,6 @@ TEST_F(CGALBooleanEngineTest, overlap_union) {
     const MatrixFr& vertices = cgal_engine->get_vertices();
     const MatrixIr& faces = cgal_engine->get_faces();
 
-    const size_t num_vertices = mesh->get_num_vertices();
-    const size_t num_faces = mesh->get_num_faces();
-
     VectorF origin = VectorF::Zero(3);
     VectorF corner = VectorF::Ones(3);
     assert_interior(vertices, faces, origin);
@@ -220,9 +216,6 @@ TEST_F(CGALBooleanEngineTest, overlap_intersection) {
 
     const MatrixFr& vertices = cgal_engine->get_vertices();
     const MatrixIr& faces = cgal_engine->get_faces();
-
-    const size_t num_vertices = mesh->get_num_vertices();
-    const size_t num_faces = mesh->get_num_faces();
 
     VectorF origin = VectorF::Zero(3);
     VectorF corner = VectorF::Ones(3);
@@ -280,3 +273,5 @@ TEST_F(CGALBooleanEngineTest, open_surface) {
     cgal_engine->set_mesh_2(tri_vertices, tri_faces);
     ASSERT_THROW(cgal_engine->compute_intersection(), RuntimeError);
 }
+
+#endif
